@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite hostname="smaug" name="com.lexicalscope.javabeanhelpers.generator.HelperGeneratorTest" tests="1" failures="0" timestamp="24 Jul 2011 16:36:44 GMT" time="0.073" errors="0">
+  <testcase name="modelsAreMergedWithTemplates" time="0.064" classname="com.lexicalscope.javabeanhelpers.generator.HelperGeneratorTest"/>
+</testsuite>

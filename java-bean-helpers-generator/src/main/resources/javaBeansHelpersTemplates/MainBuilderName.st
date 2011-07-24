@@ -1,0 +1,1 @@
+MainBuilderName(bean) ::= "<bean.packageName>.<bean.name>Builder"
