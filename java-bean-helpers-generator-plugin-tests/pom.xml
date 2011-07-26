@@ -38,6 +38,13 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>com.lexicalscope.java-bean-helpers-generator</groupId>
+            <artifactId>java-bean-helpers-generator-plugin-testbeans</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <type>jar</type>

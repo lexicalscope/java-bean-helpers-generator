@@ -7,7 +7,7 @@ public class BeanModelImpl implements BeanModel {
 		this.klass = klass;
 	}
 
-	public String getPackageName() {
+	public String getPackage() {
 		return klass.getPackage().getName();
 	}
 

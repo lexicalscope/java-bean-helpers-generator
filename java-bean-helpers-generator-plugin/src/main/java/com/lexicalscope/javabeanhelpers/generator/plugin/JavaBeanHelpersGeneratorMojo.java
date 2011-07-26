@@ -18,10 +18,14 @@ package com.lexicalscope.javabeanhelpers.generator.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -41,8 +45,8 @@ import com.lexicalscope.javabeanhelpers.generator.JavaBeansHelperGeneratorModule
 
 /**
  * @goal generate-helpers
- * 
  * @phase generate-sources
+ * @requiresDependencyResolution compile
  */
 public class JavaBeanHelpersGeneratorMojo
 		extends AbstractMojo {
@@ -72,6 +76,8 @@ public class JavaBeanHelpersGeneratorMojo
 	 */
 	private String[] packages;
 
+	private ClassLoader classLoader;
+
 	public void execute()
 			throws MojoExecutionException {
 		if (!outputDirectory.exists()) {
@@ -92,6 +98,8 @@ public class JavaBeanHelpersGeneratorMojo
 				throw new MojoExecutionException("unable to load classes in packages " + packag3, e);
 			} catch (final ClassNotFoundException e) {
 				throw new MojoExecutionException("unable to load classes in packages " + packag3, e);
+			} catch (final DependencyResolutionRequiredException e) {
+				throw new MojoExecutionException("unable to resolve dependencies " + packag3, e);
 			}
 		}
 		for (final Class<?> klass : classes) {
@@ -104,12 +112,16 @@ public class JavaBeanHelpersGeneratorMojo
 		}
 	}
 
-	private List<Class<?>> findEligableTypes(final String basePackage) throws IOException, ClassNotFoundException {
+	private List<Class<?>> findEligableTypes(final String basePackage)
+			throws IOException,
+			ClassNotFoundException,
+			DependencyResolutionRequiredException {
 		if (basePackage == null) {
 			return Collections.emptyList();
 		}
 
-		final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+		final ResourcePatternResolver resourcePatternResolver =
+				new PathMatchingResourcePatternResolver(getClassLoader());
 		final MetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory(resourcePatternResolver);
 
 		final List<Class<?>> candidates = new ArrayList<Class<?>>();
@@ -119,22 +131,39 @@ public class JavaBeanHelpersGeneratorMojo
 		for (final Resource resource : resources) {
 			if (resource.isReadable()) {
 				final MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
-				if (isCandidate(metadataReader)) {
+				final Class<?> loadedClass =
+						getClassLoader().loadClass(metadataReader.getClassMetadata().getClassName());
+				if (isCandidate(loadedClass)) {
 					getLog().info("found resource " + resource);
-					candidates.add(Class.forName(metadataReader.getClassMetadata().getClassName()));
+					candidates.add(loadedClass);
 				}
 			}
 		}
 		return candidates;
 	}
 
+	private ClassLoader getClassLoader() throws MalformedURLException, DependencyResolutionRequiredException {
+		synchronized (JavaBeanHelpersGeneratorMojo.class) {
+			if (classLoader == null) {
+				final List<URL> urls = new ArrayList<URL>();
+				for (final Object object : project.getCompileClasspathElements()) {
+					if (!object.equals(project.getBuild().getOutputDirectory())) {
+						final String path = (String) object;
+						urls.add(new File(path).toURI().toURL());
+					}
+				}
+				classLoader = new URLClassLoader(urls.toArray(new URL[] {}));
+			}
+			return classLoader;
+		}
+	}
+
 	private String resolveBasePackage(final String basePackage) {
 		return ClassUtils.convertClassNameToResourcePath(SystemPropertyUtils.resolvePlaceholders(basePackage));
 	}
 
-	private boolean isCandidate(final MetadataReader metadataReader) throws ClassNotFoundException {
+	private boolean isCandidate(final Class<?> loadedClass) throws ClassNotFoundException {
 		try {
-			final Class<?> c = Class.forName(metadataReader.getClassMetadata().getClassName());
 			// if (c.getAnnotation(XmlRootElement.class) != null) {
 			return true;
 			// }

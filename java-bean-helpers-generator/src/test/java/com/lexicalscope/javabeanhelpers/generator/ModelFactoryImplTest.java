@@ -26,6 +26,6 @@ public class ModelFactoryImplTest {
 
 		final BeanModel output = new ModelFactoryImpl().createModel(ExampleBeanOne.class);
 
-		assertThat(output.getPackageName(), equalTo("com.lexicalscope.javabeanhelpers.generator"));
+		assertThat(output.getPackage(), equalTo("com.lexicalscope.javabeanhelpers.generator"));
 	}
 }
