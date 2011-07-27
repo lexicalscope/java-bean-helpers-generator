@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.lexicalscope.java-bean-helpers-generator</groupId>
     <artifactId>java-bean-helpers-generator-root</artifactId>
@@ -12,7 +11,8 @@
         <module>java-bean-helpers-generator-plugin</module>
         <module>java-bean-helpers-generator-plugin-tests</module>
         <module>java-bean-helpers-generator-plugin-testbeans</module>
-    </modules>
+    <module>java-beans-helpers-reflection</module>
+  </modules>
     <build>
         <pluginManagement>
             <plugins>
